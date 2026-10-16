@@ -39,7 +39,7 @@ export function getAccessToken() {
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 15000,
+  timeout: 60000,
 })
 
 // ── Request interceptor: attach access token ──────────────────────────────
