@@ -143,27 +143,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Demo credentials hint */}
-        <div className="mt-4 p-3 bg-charcoal-700/50 border border-charcoal-500 rounded-lg">
-          <p className="text-xs text-gray-500 text-center mb-2 font-semibold uppercase tracking-wider">Demo Credentials</p>
-          <div className="space-y-1">
-            {[
-              { role: 'Admin',   email: 'admin@argus.local',   pass: 'Admin@Argus2024!' },
-              { role: 'Analyst', email: 'analyst1@argus.local', pass: 'Analyst1Pass!23' },
-              { role: 'Viewer',  email: 'viewer@argus.local',   pass: 'Viewer1Pass!23' },
-            ].map(({ role, email: e, pass }) => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => { setEmail(e); setPassword(pass) }}
-                className="w-full text-left px-2 py-1 rounded text-xs text-gray-400 hover:bg-charcoal-600 hover:text-gray-200 transition-colors font-mono"
-              >
-                <span className="text-cyber-cyan">[{role}]</span> {e}
-              </button>
-            ))}
-          </div>
-        </div>
-
         <p className="text-center text-xs text-gray-600 mt-6">
           ARGUS v{import.meta.env.VITE_APP_VERSION ?? '1.0.0'} · Authorized access only
         </p>
