@@ -1,0 +1,35 @@
+{
+  "recommendations": [
+    // ── Python ──────────────────────────────────────────────────
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "charliermarsh.ruff",
+
+    // ── Frontend ────────────────────────────────────────────────
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "burkeholland.simple-react-snippets",
+
+    // ── Database ────────────────────────────────────────────────
+    "cweijan.vscode-postgresql-client2",
+
+    // ── API Testing ─────────────────────────────────────────────
+    "rangav.vscode-thunder-client",
+
+    // ── Git & Collaboration ─────────────────────────────────────
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+
+    // ── YAML / Docker ───────────────────────────────────────────
+    "redhat.vscode-yaml",
+    "ms-azuretools.vscode-docker",
+
+    // ── Productivity ────────────────────────────────────────────
+    "usernamehw.errorlens",
+    "streetsidesoftware.code-spell-checker",
+    "christian-kohler.path-intellisense",
+    "PKief.material-icon-theme"
+  ]
+}
