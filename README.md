@@ -6,6 +6,20 @@
 
 ---
 
+## 🌐 Live Demo
+
+| | |
+|---|---|
+| **App** | https://argus-muaz6.vercel.app |
+| **API health check** | https://argus-api-yohb.onrender.com/health |
+
+**Demo login (read-only):** `viewer@argus.local` / `Viewer1Pass!23`
+
+> ⏳ The backend runs on a free tier and goes to sleep when idle, so the **first load can take up to a minute**. After that it is fast.
+> API docs (Swagger) are turned off in production. Run the project locally to see them at `/api/docs`.
+
+---
+
 ## ✨ Features
 
 | Capability | Details |
@@ -22,7 +36,7 @@
 
 ---
 
-## 🖥️ Screenshots
+## 🖥️ Local URLs
 
 > Landing page → http://localhost:5173 &nbsp;|&nbsp; Dashboard → http://localhost:5173/dashboard &nbsp;|&nbsp; API Docs → http://localhost:8000/api/docs
 
@@ -47,7 +61,7 @@
 ### Step 1 — Clone
 
 ```powershell
-git clone https://github.com/<your-username>/ARGUS.git
+git clone https://github.com/muazmuhammed10/ARGUS.git
 cd ARGUS
 ```
 
@@ -65,9 +79,11 @@ Open `.env` and set **at minimum**:
 POSTGRES_PASSWORD=your_postgres_password
 DATABASE_URL=postgresql+asyncpg://postgres:your_postgres_password@localhost:5432/argus_db
 SECRET_KEY=<run: python -c "import secrets; print(secrets.token_hex(64))">
+SEED_ADMIN_PASSWORD=choose_a_strong_admin_password
 ```
 
 > The rest of the defaults work out of the box for local development.
+> If your database password contains special characters such as `@` or `#`, URL-encode them in `DATABASE_URL` (`@` becomes `%40`, `#` becomes `%23`) or use a simple password.
 
 ---
 
@@ -116,8 +132,9 @@ Expected seed output:
   Creating incidents...
   Creating sample IOC indicators...
 ✅ Seed completed successfully.
-   Admin:   admin@argus.local / Admin@Argus2024!
+   Admin:   admin@argus.local / <the value of SEED_ADMIN_PASSWORD>
    Analyst: analyst1@argus.local / Analyst1Pass!23
+   Analyst: analyst2@argus.local / Analyst2Pass!23
    Viewer:  viewer@argus.local / Viewer1Pass!23
 ```
 
@@ -130,7 +147,7 @@ Expected seed output:
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-✅ API live at: http://localhost:8000  
+✅ API live at: http://localhost:8000
 ✅ Swagger docs: http://localhost:8000/api/docs
 
 ---
@@ -157,8 +174,9 @@ Click **Sign In** (top-right) or use the demo credentials:
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | `admin@argus.local` | `Admin@Argus2024!` |
+| Admin | `admin@argus.local` | the value of `SEED_ADMIN_PASSWORD` in your `.env` |
 | Analyst | `analyst1@argus.local` | `Analyst1Pass!23` |
+| Analyst | `analyst2@argus.local` | `Analyst2Pass!23` |
 | Viewer | `viewer@argus.local` | `Viewer1Pass!23` |
 
 ---
@@ -268,6 +286,28 @@ Services exposed:
 
 ---
 
+## ☁️ Deployment
+
+ARGUS is deployed on free tiers:
+
+| Layer | Host | Key settings |
+|---|---|---|
+| Database | Neon (PostgreSQL) | `DATABASE_URL=postgresql+asyncpg://…?ssl=require` (use the non-pooled host) |
+| Backend | Render (Python 3.12) | Root `backend` · Build `pip install -r requirements.txt` · Start `uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"` · Env `APP_ENV=production`, `SECRET_KEY`, `DATABASE_URL`, `ALLOWED_ORIGINS` (the frontend URL) |
+| Frontend | Vercel (Vite) | Root `frontend` · Env `VITE_API_BASE_URL=https://<api-host>/api/v1` · `vercel.json` rewrites all routes to `index.html` |
+
+Run the migrations and seed **once** against the production database with `DATABASE_URL` set in your shell:
+
+```powershell
+cd backend
+.venv\Scripts\Activate.ps1
+$env:DATABASE_URL="postgresql+asyncpg://…?ssl=require"
+.venv\Scripts\python.exe -m scripts.migrate_safe
+.venv\Scripts\python.exe -m scripts.seed
+```
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -289,6 +329,7 @@ ARGUS/
 │   │   └── test/              ← Vitest + React Testing Library
 │   ├── tailwind.config.js
 │   ├── vite.config.ts
+│   ├── vercel.json            ← SPA rewrite for Vercel
 │   └── Dockerfile
 │
 ├── backend/                   ← Python 3.14 + FastAPI + SQLAlchemy
@@ -316,7 +357,7 @@ ARGUS/
 
 ## 🔌 API Reference
 
-All endpoints are documented interactively at **http://localhost:8000/api/docs** (Swagger UI).
+All endpoints are documented interactively at **http://localhost:8000/api/docs** (Swagger UI) when running locally.
 
 | Group | Base Path | Auth Required |
 |---|---|---|
@@ -364,6 +405,7 @@ Full reference — copy from `.env.example`:
 | `SECRET_KEY` | ✅ | — | JWT signing key (generate 64-byte hex) |
 | `DATABASE_URL` | ✅ | — | PostgreSQL async connection string |
 | `POSTGRES_PASSWORD` | ✅ | — | DB password |
+| `SEED_ADMIN_PASSWORD` | | `ChangeMe123!` | Password for the seeded admin account |
 | `APP_ENV` | | `development` | `development` / `production` |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | | `30` | JWT access token lifetime |
 | `REFRESH_TOKEN_EXPIRE_DAYS` | | `7` | Refresh token lifetime |
@@ -374,6 +416,7 @@ Full reference — copy from `.env.example`:
 | `VIRUSTOTAL_API_KEY` | | — | VirusTotal IOC enrichment |
 | `ABUSEIPDB_API_KEY` | | — | AbuseIPDB enrichment |
 | `ALLOWED_ORIGINS` | | `http://localhost:5173` | CORS allowed origins (comma-separated) |
+| `VITE_API_BASE_URL` | | `http://localhost:8000/api/v1` | Frontend only: backend API URL, set at build time |
 
 ---
 
@@ -388,6 +431,7 @@ Full reference — copy from `.env.example`:
 | Phase 5 — Threat intelligence, AI analysis | ✅ Complete |
 | Phase 6 — Reports, exports, hardening | ✅ Complete |
 | Phase 7 — Landing page, polish, GitHub-ready | ✅ Complete |
+| Phase 7.5 — Production deployment (Vercel + Render + Neon) | ✅ Complete |
 | Phase 8 — Async task queue (Celery/Redis), webhooks | 🔜 Planned |
 | Phase 9 — Browser E2E tests (Playwright) | 🔜 Planned |
 
@@ -397,7 +441,7 @@ Full reference — copy from `.env.example`:
 
 ARGUS is a portfolio / demonstration project.
 
-All synthetic data is for demonstration purposes only.  
+All synthetic data is for demonstration purposes only.
 Do not use this platform against systems you do not own or have explicit written permission to test.
 
 ---
